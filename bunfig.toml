@@ -1,0 +1,20 @@
+# Bun configuration for crew-opencode
+
+[install]
+# Use exact versions for reproducibility
+exact = true
+
+[install.lockfile]
+# Save lockfile
+save = true
+
+[test]
+# Test configuration
+coverage = true
+coverageDir = "coverage"
+
+[build]
+# Build configuration
+minify = true
+sourcemap = "external"
+target = "bun"

@@ -1,0 +1,64 @@
+{
+  "name": "crew-opencode",
+  "version": "0.1.0",
+  "description": "Multi-agent orchestration plugin for OpenCode. Coordinate specialized AI agents working together like a development team.",
+  "type": "module",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "crew-opencode": "dist/cli/index.js",
+    "crew": "dist/cli/index.js"
+  },
+  "scripts": {
+    "dev": "bun run src/cli/index.ts",
+    "build": "bun build src/cli/index.ts --outdir dist/cli --target bun",
+    "build:bin": "bun run build:macos && bun run build:linux && bun run build:windows",
+    "build:macos": "bun build src/cli/index.ts --compile --outfile bin/crew-opencode-macos",
+    "build:macos-arm": "bun build src/cli/index.ts --compile --target=bun-darwin-arm64 --outfile bin/crew-opencode-macos-arm64",
+    "build:linux": "bun build src/cli/index.ts --compile --target=bun-linux-x64 --outfile bin/crew-opencode-linux-x64",
+    "build:windows": "bun build src/cli/index.ts --compile --target=bun-windows-x64 --outfile bin/crew-opencode-windows-x64.exe",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "opencode",
+    "ai",
+    "agents",
+    "multi-agent",
+    "orchestration",
+    "cli",
+    "llm",
+    "crew"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sehyun0518/crew-opencode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sehyun0518/crew-opencode/issues"
+  },
+  "homepage": "https://github.com/sehyun0518/crew-opencode#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.14",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
