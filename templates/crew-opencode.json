@@ -1,0 +1,50 @@
+{
+  "$schema": "https://crew-opencode.dev/schema.json",
+  "version": "1.0",
+  "crew": {
+    "pm": {
+      "enabled": true,
+      "model": "claude-opus-4.5",
+      "maxTurns": 10,
+      "temperature": 0.7
+    },
+    "ta": {
+      "enabled": true,
+      "model": "claude-sonnet-4.5",
+      "maxTurns": 15,
+      "temperature": 0.5
+    },
+    "fe": {
+      "enabled": true,
+      "model": "gemini-3-pro",
+      "maxTurns": 20,
+      "temperature": 0.7
+    },
+    "design": {
+      "enabled": true,
+      "model": "gpt-5.2-medium",
+      "maxTurns": 10,
+      "temperature": 0.8
+    },
+    "qa": {
+      "enabled": true,
+      "model": "claude-haiku-4.5",
+      "maxTurns": 15,
+      "temperature": 0.3
+    }
+  },
+  "sop": {
+    "default": "feature"
+  },
+  "incidentReport": {
+    "enabled": true,
+    "outputDir": "reports",
+    "format": "json",
+    "includeContext": true
+  },
+  "hooks": {
+    "preToolUse": [],
+    "postToolUse": [],
+    "stop": []
+  }
+}

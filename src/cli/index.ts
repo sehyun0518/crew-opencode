@@ -48,6 +48,7 @@ program
   .description('Get or set configuration values')
   .option('--list', 'List all configuration values')
   .option('--reset', 'Reset configuration to defaults')
+  .option('-g, --global', 'Use global configuration')
   .action(configCommand)
 
 program

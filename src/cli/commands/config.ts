@@ -1,48 +1,18 @@
 import chalk from 'chalk'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { homedir } from 'node:os'
+import {
+  loadConfig,
+  resetConfig,
+  getConfigValue,
+  setConfigValue,
+  getConfigSource,
+  getLocalConfigPath,
+  getGlobalConfigPath,
+} from '../../config'
 
 interface ConfigOptions {
   list?: boolean
   reset?: boolean
-}
-
-const DEFAULT_CONFIG = {
-  version: '1.0',
-  crew: {
-    pm: { enabled: true, model: 'opus-4.5' },
-    ta: { enabled: true, model: 'claude-sonnet-4.5' },
-    fe: { enabled: true, model: 'gemini-3-pro' },
-    design: { enabled: true, model: 'gpt-5.2-medium' },
-    qa: { enabled: true, model: 'claude-haiku-4.5' },
-  },
-  sop: {
-    default: 'feature',
-  },
-  incidentReport: {
-    enabled: true,
-    outputDir: '.opencode/crew-opencode/reports',
-  },
-}
-
-function getConfigPath(): string {
-  const localPath = join(process.cwd(), '.opencode', 'crew-opencode', 'crew-opencode.json')
-  const globalPath = join(homedir(), '.opencode', 'crew-opencode', 'crew-opencode.json')
-
-  if (existsSync(localPath)) {
-    return localPath
-  }
-  return globalPath
-}
-
-function loadConfig(): Record<string, unknown> {
-  const configPath = getConfigPath()
-  if (existsSync(configPath)) {
-    const content = readFileSync(configPath, 'utf-8')
-    return JSON.parse(content)
-  }
-  return DEFAULT_CONFIG
+  global?: boolean
 }
 
 export async function configCommand(
@@ -50,42 +20,80 @@ export async function configCommand(
   value: string | undefined,
   options: ConfigOptions
 ): Promise<void> {
+  const location = options.global ? 'global' : 'local'
+
   console.log(chalk.bold('\ncrew-opencode configuration\n'))
 
+  // Reset config
   if (options.reset) {
-    const configPath = getConfigPath()
-    writeFileSync(configPath, JSON.stringify(DEFAULT_CONFIG, null, 2))
-    console.log(chalk.green('Configuration reset to defaults.'))
+    resetConfig(location)
+    const path = location === 'global' ? getGlobalConfigPath() : getLocalConfigPath()
+    console.log(chalk.green(`Configuration reset to defaults.`))
+    console.log(chalk.dim(`Location: ${path}`))
     return
   }
 
-  const config = loadConfig()
-
+  // List all config
   if (options.list || (!key && !value)) {
-    console.log(chalk.dim('Current configuration:\n'))
+    const config = loadConfig()
+    const source = getConfigSource()
+
+    console.log(chalk.dim(`Source: ${source}`))
+    if (source === 'local') {
+      console.log(chalk.dim(`Path: ${getLocalConfigPath()}`))
+    } else if (source === 'global') {
+      console.log(chalk.dim(`Path: ${getGlobalConfigPath()}`))
+    }
+    console.log()
     console.log(JSON.stringify(config, null, 2))
     return
   }
 
+  // Get value
   if (key && !value) {
-    // Get value
-    const keys = key.split('.')
-    let current: unknown = config
-    for (const k of keys) {
-      if (current && typeof current === 'object' && k in current) {
-        current = (current as Record<string, unknown>)[k]
-      } else {
-        console.log(chalk.yellow(`Key "${key}" not found.`))
-        return
-      }
+    const configValue = getConfigValue(key)
+    if (configValue === undefined) {
+      console.log(chalk.yellow(`Key "${key}" not found.`))
+      console.log(chalk.dim('\nAvailable top-level keys: version, crew, sop, incidentReport, hooks'))
+      return
     }
-    console.log(chalk.dim(`${key}:`), current)
+
+    console.log(chalk.dim(`${key}:`))
+    if (typeof configValue === 'object') {
+      console.log(JSON.stringify(configValue, null, 2))
+    } else {
+      console.log(configValue)
+    }
     return
   }
 
+  // Set value
   if (key && value) {
-    // Set value
-    console.log(chalk.green(`Set ${key} = ${value}`))
-    console.log(chalk.dim('(Config persistence not yet implemented)'))
+    // Parse value
+    let parsedValue: unknown = value
+
+    // Try to parse as JSON
+    try {
+      parsedValue = JSON.parse(value)
+    } catch {
+      // Try to parse as boolean
+      if (value === 'true') {
+        parsedValue = true
+      } else if (value === 'false') {
+        parsedValue = false
+      } else if (!isNaN(Number(value))) {
+        // Try to parse as number
+        parsedValue = Number(value)
+      }
+      // Otherwise keep as string
+    }
+
+    try {
+      setConfigValue(key, parsedValue, location)
+      console.log(chalk.green(`Set ${key} = ${JSON.stringify(parsedValue)}`))
+      console.log(chalk.dim(`Location: ${location === 'global' ? getGlobalConfigPath() : getLocalConfigPath()}`))
+    } catch (error) {
+      console.error(chalk.red(`Failed to set value:`), error)
+    }
   }
 }
