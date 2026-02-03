@@ -3,6 +3,7 @@ export { Orchestrator } from './orchestrator'
 export { AgentRunner } from './agent-runner'
 export { TaskQueue } from './task-queue'
 export { ContextManager } from './context-manager'
+export { IncidentReportManager } from './incident-report'
 
 // Type exports
 export type {

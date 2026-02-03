@@ -15,6 +15,7 @@ import { createTaskFromStep, generateWorkflowId } from './types'
 import { ContextManager } from './context-manager'
 import { TaskQueue } from './task-queue'
 import { AgentRunner } from './agent-runner'
+import { IncidentReportManager } from './incident-report'
 
 /**
  * Orchestrator - PM coordinator for multi-agent workflows
@@ -32,14 +33,21 @@ export class Orchestrator {
   private contextManager: ContextManager
   private taskQueue: TaskQueue
   private agentRunner: AgentRunner
+  private incidentReportManager: IncidentReportManager
   private eventHandlers: OrchestratorEventHandler[] = []
   private workflowState?: WorkflowState
+  private projectPath: string
 
-  constructor(config: CrewConfig) {
+  constructor(config: CrewConfig, projectPath: string = process.cwd()) {
     this.config = config
-    this.contextManager = new ContextManager('', '', process.cwd())
+    this.projectPath = projectPath
+    this.contextManager = new ContextManager('', '', projectPath)
     this.taskQueue = new TaskQueue()
     this.agentRunner = new AgentRunner(this.contextManager)
+    this.incidentReportManager = new IncidentReportManager(
+      config.incidentReport,
+      projectPath
+    )
   }
 
   /**
@@ -51,6 +59,15 @@ export class Orchestrator {
     projectPath: string = process.cwd()
   ): Promise<WorkflowState> {
     const workflowId = generateWorkflowId()
+
+    // Update project path if different
+    if (projectPath !== this.projectPath) {
+      this.projectPath = projectPath
+      this.incidentReportManager = new IncidentReportManager(
+        this.config.incidentReport,
+        projectPath
+      )
+    }
 
     // Initialize context
     this.contextManager = new ContextManager(sopName, userRequest, projectPath)
@@ -206,9 +223,9 @@ export class Orchestrator {
           this.taskQueue.markTaskFailed(task.id, new Error(result.error.message))
         }
 
-        // Create incident report
+        // Create and save incident report
         if (this.config.incidentReport.enabled && result.error) {
-          const report = this.createIncidentReport(task, result.error)
+          const report = await this.createAndSaveIncidentReport(task, result.error)
           this.emit({
             type: 'incident:created',
             report,
@@ -354,80 +371,21 @@ export class Orchestrator {
   }
 
   /**
-   * Create incident report from failed task
+   * Create and save incident report from failed task
    */
-  private createIncidentReport(task: Task, error: AgentError): IncidentReport {
+  private async createAndSaveIncidentReport(
+    task: Task,
+    error: AgentError
+  ): Promise<IncidentReport> {
     const workflowId = this.contextManager.getWorkflowId()
 
-    return {
-      id: `incident-${Date.now()}`,
-      timestamp: new Date(),
-      workflowId,
-      agent: task.agent,
-      task,
-      rootCause: error.message,
-      riskAnalysis: this.analyzeRisk(task, error),
-      preventionStrategy: this.suggestPrevention(task, error),
-      context: error.context || {},
-      stackTrace: error instanceof Error ? (error as Error).stack : undefined,
-    }
-  }
+    // Create report using the incident report manager
+    const report = this.incidentReportManager.createReport(workflowId, task, error)
 
-  /**
-   * Analyze risk of a failed task
-   */
-  private analyzeRisk(task: Task, error: AgentError): string {
-    const lines: string[] = [
-      `## Risk Analysis`,
-      ``,
-      `**Agent**: ${task.agent}`,
-      `**Action**: ${task.action}`,
-      `**Error**: ${error.code}`,
-      ``,
-      `**Impact**:`,
-    ]
+    // Save report to disk
+    await this.incidentReportManager.saveReport(report)
 
-    // Determine impact based on task priority and position in workflow
-    if (task.priority === 'critical') {
-      lines.push(`- This is a CRITICAL task - workflow cannot proceed`)
-    } else if (task.priority === 'high') {
-      lines.push(`- This is a HIGH priority task - significant impact on workflow`)
-    } else {
-      lines.push(`- This is a ${task.priority.toUpperCase()} priority task`)
-    }
-
-    if (!error.recoverable) {
-      lines.push(`- Error is NOT recoverable - manual intervention required`)
-    } else {
-      lines.push(`- Error may be recoverable - retry possible`)
-    }
-
-    return lines.join('\n')
-  }
-
-  /**
-   * Suggest prevention strategy for error
-   */
-  private suggestPrevention(task: Task, error: AgentError): string {
-    const lines: string[] = [`## Prevention Strategy`, ``]
-
-    // Suggest based on error code
-    if (error.code.includes('TIMEOUT')) {
-      lines.push(`- Increase timeout for ${task.agent} agent`)
-      lines.push(`- Break down task into smaller subtasks`)
-    } else if (error.code.includes('RATE_LIMIT')) {
-      lines.push(`- Implement rate limiting and backoff strategy`)
-      lines.push(`- Consider using a different model provider`)
-    } else if (error.code.includes('VALIDATION')) {
-      lines.push(`- Review input validation in SOP definition`)
-      lines.push(`- Ensure all required inputs are available`)
-    } else {
-      lines.push(`- Review agent configuration for ${task.agent}`)
-      lines.push(`- Check agent prompt and expected outputs`)
-      lines.push(`- Verify model availability and API access`)
-    }
-
-    return lines.join('\n')
+    return report
   }
 
   /**
