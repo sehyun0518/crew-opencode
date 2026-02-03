@@ -2,7 +2,7 @@
 
 > [!NOTE]
 >
-> [![crew-opencode — thumbnail](./.github/assets/hero.png)]
+> ![crew-opencode — thumbnail](./.github/assets/hero.png)
 
 >**"Low-cost tasks to affordable agents; high-level reasoning to top-tier models."**
 
