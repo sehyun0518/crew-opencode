@@ -1,5 +1,9 @@
 # crew-opencode
 
+> [!NOTE]
+>
+> [crewcode - thumbnail](./.github/assets/hero.png)
+> 
 > **"Low-cost tasks to affordable agents; high-level reasoning to top-tier models."**
 
 [![npm version](https://img.shields.io/npm/v/crew-opencode.svg)](https://www.npmjs.com/package/crew-opencode)
