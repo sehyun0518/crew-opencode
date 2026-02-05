@@ -140,10 +140,25 @@ export type SOPConfig = z.infer<typeof SOPConfigSchema>
  */
 export const CrewConfigSchema = z.object({
   version: z.string().default('1.0'),
-  crew: CrewAgentsConfigSchema.default({}),
-  sop: SOPConfigSchema.default({}),
-  incidentReport: IncidentReportConfigSchema.default({}),
-  hooks: HooksConfigSchema.default({}),
+  crew: CrewAgentsConfigSchema.default(() => ({
+    pm: { enabled: true, model: 'claude-opus-4.5' as const, maxTurns: 10, temperature: 0.7 },
+    ta: { enabled: true, model: 'claude-sonnet-4.5' as const, maxTurns: 15, temperature: 0.5 },
+    fe: { enabled: true, model: 'gemini-3-pro' as const, maxTurns: 20, temperature: 0.7 },
+    design: { enabled: true, model: 'gpt-5.2-medium' as const, maxTurns: 10, temperature: 0.8 },
+    qa: { enabled: true, model: 'claude-haiku-4.5' as const, maxTurns: 15, temperature: 0.3 },
+  })),
+  sop: SOPConfigSchema.default(() => ({ default: 'feature' as const })),
+  incidentReport: IncidentReportConfigSchema.default(() => ({
+    enabled: true,
+    outputDir: 'reports',
+    format: 'json' as const,
+    includeContext: true,
+  })),
+  hooks: HooksConfigSchema.default(() => ({
+    preToolUse: [],
+    postToolUse: [],
+    stop: [],
+  })),
 })
 
 export type CrewConfig = z.infer<typeof CrewConfigSchema>
