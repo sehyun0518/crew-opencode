@@ -317,35 +317,245 @@ crew-opencode/
 └── docs/               # Additional documentation
 ```
 
+## Debugging Tips
+
+### Running in Development Mode
+
+```bash
+# Run with debug logging
+CREW_OPENCODE_DEBUG=true bun run dev
+
+# Test specific functionality
+bun run dev crew "test task" --dry-run
+
+# Check configuration
+bun run dev config
+
+# Run health check
+bun run dev doctor
+```
+
+### Common Issues
+
+**Issue: Tests failing locally but passing in CI**
+- Clear node_modules: `rm -rf node_modules && bun install`
+- Check Bun version: `bun --version`
+- Verify test isolation
+
+**Issue: TypeScript errors**
+- Run type check: `bun run typecheck`
+- Check for readonly property issues (spread arrays)
+- Verify Zod v4 compatibility
+
+**Issue: Mock errors in Vitest v4**
+- Use class-based mocks, not object literals
+- Ensure all methods are mocked
+- Track state in mock functions
+
+### Debugging Workflow Issues
+
+1. **Check workflow state**: `.opencode/crew-opencode/workflows/*.json`
+2. **Review incident reports**: `.opencode/crew-opencode/incidents/*.md`
+3. **Enable verbose logging**: Set `DEBUG=crew:*`
+4. **Test individual agents**: Mock other agents and test in isolation
+
+## Security Guidelines
+
+### Reporting Security Issues
+
+**DO NOT** open public issues for security vulnerabilities.
+
+Instead:
+1. Email: security@crew-opencode (not monitored yet - use GitHub Security)
+2. Use GitHub's private vulnerability reporting
+3. Wait for acknowledgment before public disclosure
+
+### Security Best Practices
+
+When contributing code:
+- ✅ Never commit API keys, tokens, or secrets
+- ✅ Use environment variables for sensitive data
+- ✅ Validate all user inputs
+- ✅ Sanitize file paths
+- ✅ Use parameterized queries (if adding DB code)
+- ✅ Implement rate limiting for API calls
+- ✅ Add security tests for new features
+
+**Example: Safe API key handling**
+```typescript
+// ❌ WRONG
+const apiKey = "sk-proj-xxxxx"
+
+// ✅ CORRECT
+const apiKey = process.env.ANTHROPIC_API_KEY
+if (!apiKey) {
+  throw new Error('ANTHROPIC_API_KEY not configured')
+}
+```
+
+## Release Process
+
+### Version Numbers
+
+Follow [Semantic Versioning](https://semver.org/):
+- **MAJOR**: Breaking changes (v2.0.0)
+- **MINOR**: New features, backward compatible (v1.1.0)
+- **PATCH**: Bug fixes (v1.0.1)
+
+### Creating a Release (Maintainers Only)
+
+1. **Update version**:
+   ```bash
+   # Update package.json and src/cli/index.ts
+   # Update CHANGELOG.md
+   ```
+
+2. **Run tests**:
+   ```bash
+   bun run test:full
+   bun run test:coverage
+   ```
+
+3. **Build binaries**:
+   ```bash
+   bun run build:bin
+   ```
+
+4. **Create tag**:
+   ```bash
+   git tag -a v1.x.x -m "Release v1.x.x"
+   git push origin v1.x.x
+   ```
+
+5. **Create GitHub release**:
+   ```bash
+   gh release create v1.x.x \
+     bin/* \
+     --title "v1.x.x" \
+     --notes-file RELEASE_NOTES.md
+   ```
+
+## Community Guidelines
+
+### Communication Channels
+
+- **GitHub Issues**: Bug reports, feature requests
+- **GitHub Discussions**: Questions, ideas, showcases
+- **Pull Requests**: Code contributions
+
+### Response Times
+
+We aim to respond within:
+- **Critical bugs**: 24 hours
+- **Regular issues**: 3-5 days
+- **Pull requests**: 5-7 days
+- **Questions**: 2-3 days
+
+### Code of Conduct Violations
+
+Report violations to: conduct@crew-opencode.dev (or GitHub)
+
+We will:
+1. Review the report within 48 hours
+2. Investigate thoroughly
+3. Take appropriate action
+4. Keep the reporter informed
+
+## Recognition and Rewards
+
+### Contributor Levels
+
+**First-time Contributors**:
+- Added to README contributors list
+- Welcome badge on GitHub
+
+**Regular Contributors** (3+ merged PRs):
+- Listed in docs/CONTRIBUTORS.md
+- Mentioned in release notes
+- Special recognition badge
+
+**Core Contributors** (10+ PRs, ongoing involvement):
+- Commit access (after review)
+- Decision-making participation
+- Listed as project maintainer
+
+### Hall of Fame
+
+Outstanding contributions that:
+- Fix critical security issues
+- Add major features
+- Significantly improve documentation
+- Help other contributors
+
+Will be featured in:
+- README.md top section
+- Project website (future)
+- Conference presentations
+
+## Development Resources
+
+### Recommended Reading
+
+**Multi-Agent Systems**:
+- [LangChain Multi-Agent Documentation](https://python.langchain.com/docs/modules/agents/)
+- [AutoGPT Architecture](https://github.com/Significant-Gravitas/AutoGPT)
+- [CrewAI Design](https://github.com/joaomdmoura/crewAI)
+
+**LLM Integration**:
+- [Anthropic API Documentation](https://docs.anthropic.com/)
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Google AI Documentation](https://ai.google.dev/docs)
+
+**TypeScript Best Practices**:
+- [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
+- [Effective TypeScript](https://effectivetypescript.com/)
+
+### Tools We Use
+
+- **Runtime**: Bun
+- **Testing**: Vitest
+- **Validation**: Zod
+- **CLI**: Commander
+- **Styling**: Chalk
+- **Linting**: ESLint + TypeScript ESLint
+
 ## Areas for Contribution
 
 ### High Priority
 
-- Additional agent roles (Backend, DevOps, Documentation, etc.)
-- More SOP workflows (deployment, migration, etc.)
-- LLM API integration (currently stubbed)
-- Enhanced incident report analytics
-- Performance optimizations
+- ✅ **Additional agent roles**: Backend, DevOps, Documentation, etc.
+- ✅ **More SOP workflows**: Deployment, migration, etc.
+- ✅ **Enhanced incident report analytics**: ML-based root cause analysis
+- ✅ **Performance optimizations**: Caching, parallel execution improvements
+- ✅ **Cross-platform testing**: Windows and Linux binary verification
 
 ### Documentation
 
-- Tutorial videos
-- Example projects
-- Best practices guide
-- Troubleshooting guide
+- ✅ **Tutorial videos**: YouTube series or documentation site
+- ✅ **Example projects**: Real-world usage examples
+- ✅ **Best practices guide**: Advanced patterns and anti-patterns
+- ✅ **Troubleshooting guide**: Common issues and solutions
+- ✅ **API reference**: Auto-generated from TypeScript
 
 ### Testing
 
-- Increase test coverage
-- Add E2E tests
-- Performance benchmarks
+- ✅ **Increase test coverage**: From 79% to 85%+
+- ✅ **Add E2E tests**: Complete workflow testing with real LLM calls
+- ✅ **Performance benchmarks**: Track execution time, token usage
+- ✅ **Load testing**: Concurrent workflow execution
 
 ### Features
 
-- Agent customization UI
-- Real-time collaboration features
-- Integration with more development tools
-- Cost tracking and optimization
+- ✅ **Agent customization UI**: Web-based agent configuration
+- ✅ **Real-time collaboration**: Multiple developers on same workflow
+- ✅ **Integration with dev tools**: VS Code extension, IDE plugins
+- ✅ **Cost tracking**: Detailed token and cost analytics
+- ✅ **Workflow templates**: Marketplace for custom SOPs
+- ✅ **Agent memory persistence**: Learning from past workflows
+
+### v1.1 Roadmap Priorities
+
+See [docs/PLAN.md](docs/PLAN.md) for detailed roadmap.
 
 ## Questions?
 

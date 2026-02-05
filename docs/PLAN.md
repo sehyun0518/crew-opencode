@@ -222,16 +222,16 @@ crew-opencode/
 - ✅ Document agents in README
 - ✅ Document SOPs in README
 - ✅ Document incident report system
-- [ ] Create detailed getting-started guide (docs/getting-started.md)
+- ✅ Create detailed getting-started guide (docs/getting-started.md)
 - [ ] Create agent documentation (docs/agents.md)
 - [ ] Create SOP documentation (docs/sop.md)
-- [ ] Create configuration guide (docs/configuration.md)
-- [ ] Build standalone binaries for all platforms
-- [ ] Test installation on macOS, Linux, Windows
-- [ ] Publish to npm
-- [ ] Create GitHub releases with binaries
+- ✅ Create configuration guide (docs/configuration.md)
+- ✅ Build standalone binaries for all platforms
+- ✅ Test installation on macOS, Linux, Windows
+- [ ] Publish to npm (requires GitHub PAT authentication)
+- ✅ Create GitHub releases with binaries
 - [ ] Add contributing guidelines (expand CONTRIBUTING.md)
-- [ ] Set up CI/CD pipeline
+- ✅ Set up CI/CD pipeline
 
 ## Agent Workflow Example
 
