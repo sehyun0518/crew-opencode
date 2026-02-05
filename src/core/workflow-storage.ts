@@ -46,12 +46,13 @@ export class WorkflowStorage {
 
     try {
       const data = readFileSync(filePath, 'utf-8')
-      const workflow = JSON.parse(data) as WorkflowState
+      const parsed = JSON.parse(data)
 
-      // Convert date strings back to Date objects
-      workflow.startedAt = new Date(workflow.startedAt)
-      if (workflow.completedAt) {
-        workflow.completedAt = new Date(workflow.completedAt)
+      // Convert date strings back to Date objects and create new WorkflowState
+      const workflow: WorkflowState = {
+        ...parsed,
+        startedAt: new Date(parsed.startedAt),
+        completedAt: parsed.completedAt ? new Date(parsed.completedAt) : undefined,
       }
 
       return workflow

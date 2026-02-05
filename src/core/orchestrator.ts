@@ -396,15 +396,17 @@ export class Orchestrator {
     // Update current step based on completed tasks
     const completedCount = this.taskQueue.getCompletedTasks().length
 
-    this.workflowState = {
+    const updatedState: WorkflowState = {
       ...this.workflowState,
       currentStep: completedCount,
-      tasks: this.taskQueue.getAllTasks(),
+      tasks: [...this.taskQueue.getAllTasks()], // Spread to convert readonly to mutable
       context: this.contextManager.getContext(),
     }
 
+    this.workflowState = updatedState
+
     // Save updated state
-    await this.workflowStorage.save(this.workflowState)
+    await this.workflowStorage.save(updatedState)
   }
 
   /**
