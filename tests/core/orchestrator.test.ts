@@ -196,7 +196,7 @@ describe('Orchestrator', () => {
   })
 
   describe('execute', () => {
-    it.skip('should execute a feature workflow successfully', async () => {
+    it('should execute a feature workflow successfully', async () => {
       // Mock the internal methods
       const mockAgentRunner = {
         executeWithRetry: vi.fn().mockResolvedValue({
@@ -205,6 +205,7 @@ describe('Orchestrator', () => {
         }),
       }
 
+      const completedTasks: any[] = []
       const mockTaskQueue = {
         addTasks: vi.fn(),
         isComplete: vi.fn()
@@ -220,10 +221,15 @@ describe('Orchestrator', () => {
           .mockReturnValueOnce([{ id: 'task-3', agent: 'fe', action: 'Implement' }])
           .mockReturnValueOnce([{ id: 'task-4', agent: 'qa', action: 'Test' }])
           .mockReturnValueOnce([]),
-        updateTaskStatus: vi.fn(),
+        updateTaskStatus: vi.fn((taskId: string, status: string) => {
+          if (status === 'completed') {
+            completedTasks.push({ id: taskId, status })
+          }
+        }),
         markTaskFailed: vi.fn(),
         getPendingTasks: vi.fn().mockReturnValue([]),
         getAllTasks: vi.fn().mockReturnValue([]),
+        getCompletedTasks: vi.fn(() => completedTasks),
       }
 
       // @ts-expect-error - accessing private property for testing
@@ -559,7 +565,7 @@ describe('Orchestrator', () => {
   })
 
   describe('parallel task execution', () => {
-    it.skip('should execute parallel tasks concurrently', async () => {
+    it('should execute parallel tasks concurrently', async () => {
       const executionOrder: string[] = []
 
       const mockAgentRunner = {
@@ -570,6 +576,7 @@ describe('Orchestrator', () => {
         }),
       }
 
+      const completedTasks: any[] = []
       const mockTaskQueue = {
         addTasks: vi.fn(),
         isComplete: vi.fn()
@@ -582,9 +589,14 @@ describe('Orchestrator', () => {
             { id: 'task-2', agent: 'design', action: 'Design' },
           ])
           .mockReturnValueOnce([]),
-        updateTaskStatus: vi.fn(),
+        updateTaskStatus: vi.fn((taskId: string, status: string) => {
+          if (status === 'completed') {
+            completedTasks.push({ id: taskId, status })
+          }
+        }),
         getPendingTasks: vi.fn().mockReturnValue([]),
         getAllTasks: vi.fn().mockReturnValue([]),
+        getCompletedTasks: vi.fn(() => completedTasks),
       }
 
       // @ts-expect-error - accessing private property for testing
