@@ -5,6 +5,10 @@ export { TaskQueue } from './task-queue'
 export { ContextManager } from './context-manager'
 export { IncidentReportManager } from './incident-report'
 
+// LLM integration
+export { callLLM, validateAPIKeys, getProviderFromModel } from './llm-clients'
+export type { LLMProvider, LLMRequest, LLMResponse } from './llm-clients'
+
 // Type exports
 export type {
   // Agent types

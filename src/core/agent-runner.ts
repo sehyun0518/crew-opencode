@@ -8,6 +8,8 @@ import type {
   TokenUsage,
 } from './types'
 import type { ContextManager } from './context-manager'
+import { callLLM, type LLMRequest } from './llm-clients'
+import { loadAgentDefinition } from '../agents'
 
 /**
  * AgentRunner - Executes individual agent tasks
@@ -217,33 +219,51 @@ export class AgentRunner {
   /**
    * Execute agent via LLM API
    *
-   * NOTE: This is a placeholder for actual LLM integration
-   * In production, this would call the appropriate LLM API based on the agent's model
+   * Integrates with:
+   * - Anthropic API for Claude models (PM, TA, QA)
+   * - OpenAI API for GPT models (Design)
+   * - Google API for Gemini models (FE)
    */
   private async executeAgent(
     agent: AgentRole,
-    _prompt: string,
-    _config: AgentConfig,
-    _timeout?: number
+    prompt: string,
+    config: AgentConfig,
+    timeout?: number
   ): Promise<{
     response: string
     tokenUsage?: TokenUsage
   }> {
-    // TODO: Implement actual LLM API calls
-    // This would integrate with:
-    // - Anthropic API for Claude models (PM, TA, QA)
-    // - OpenAI API for GPT models (Design)
-    // - Google API for Gemini models (FE)
+    // Load agent definition as system prompt
+    const agentDefinition = loadAgentDefinition(agent)
 
-    // For now, return a mock response
-    return {
-      response: `Mock response from ${agent} agent`,
-      tokenUsage: {
-        inputTokens: 100,
-        outputTokens: 50,
-        totalTokens: 150,
-        estimatedCost: 0.001,
-      },
+    // Build system prompt
+    const systemPrompt = `${agentDefinition}\n\nYou are the ${agent.toUpperCase()} agent. Follow the instructions in your role definition above.`
+
+    // Prepare LLM request
+    const request: LLMRequest = {
+      model: config.model,
+      prompt,
+      systemPrompt,
+      temperature: config.temperature,
+      maxTokens: config.maxTurns * 1000, // Approximate max tokens based on turns
+      timeout,
+    }
+
+    try {
+      // Call LLM API
+      const response = await callLLM(request)
+
+      return {
+        response: response.content,
+        tokenUsage: response.tokenUsage,
+      }
+    } catch (error) {
+      // Add context to error
+      throw new Error(
+        `Failed to execute ${agent} agent with model ${config.model}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      )
     }
   }
 
