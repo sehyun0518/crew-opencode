@@ -5,49 +5,49 @@ import type { Task, AgentError } from '../../src/core/types'
 
 // Mock dependencies
 vi.mock('../../src/core/context-manager', () => ({
-  ContextManager: vi.fn().mockImplementation(() => ({
-    getContext: vi.fn().mockReturnValue({}),
-    updateContext: vi.fn(),
-    getPhase: vi.fn().mockReturnValue('idle'),
-    getWorkflowId: vi.fn().mockReturnValue('workflow-123'),
-  })),
+  ContextManager: class {
+    getContext = vi.fn().mockReturnValue({})
+    updateContext = vi.fn()
+    getPhase = vi.fn().mockReturnValue('idle')
+    getWorkflowId = vi.fn().mockReturnValue('workflow-123')
+  },
 }))
 
 vi.mock('../../src/core/task-queue', () => ({
-  TaskQueue: vi.fn().mockImplementation(() => ({
-    addTasks: vi.fn(),
-    addTask: vi.fn(),
-    getTask: vi.fn(),
-    updateTaskStatus: vi.fn(),
-    markTaskFailed: vi.fn(),
-    getNextExecutableTasks: vi.fn().mockReturnValue([]),
-    getPendingTasks: vi.fn().mockReturnValue([]),
-    getCompletedTasks: vi.fn().mockReturnValue([]),
-    getFailedTasks: vi.fn().mockReturnValue([]),
-    getAllTasks: vi.fn().mockReturnValue([]),
-    isComplete: vi.fn().mockReturnValue(true),
-    hasFailed: vi.fn().mockReturnValue(false),
-  })),
+  TaskQueue: class {
+    addTasks = vi.fn()
+    addTask = vi.fn()
+    getTask = vi.fn()
+    updateTaskStatus = vi.fn()
+    markTaskFailed = vi.fn()
+    getNextExecutableTasks = vi.fn().mockReturnValue([])
+    getPendingTasks = vi.fn().mockReturnValue([])
+    getCompletedTasks = vi.fn().mockReturnValue([])
+    getFailedTasks = vi.fn().mockReturnValue([])
+    getAllTasks = vi.fn().mockReturnValue([])
+    isComplete = vi.fn().mockReturnValue(true)
+    hasFailed = vi.fn().mockReturnValue(false)
+  },
 }))
 
 vi.mock('../../src/core/agent-runner', () => ({
-  AgentRunner: vi.fn().mockImplementation(() => ({
-    executeWithRetry: vi.fn().mockResolvedValue({
+  AgentRunner: class {
+    executeWithRetry = vi.fn().mockResolvedValue({
       success: true,
       output: {},
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/core/incident-report', () => ({
-  IncidentReportManager: vi.fn().mockImplementation(() => ({
-    createReport: vi.fn().mockReturnValue({
+  IncidentReportManager: class {
+    createReport = vi.fn().mockReturnValue({
       id: 'incident-1',
       workflowId: 'workflow-1',
       timestamp: new Date(),
-    }),
-    saveReport: vi.fn().mockResolvedValue('/path/to/report'),
-  })),
+    })
+    saveReport = vi.fn().mockResolvedValue('/path/to/report')
+  },
 }))
 
 const mockConfig: CrewConfig = {
