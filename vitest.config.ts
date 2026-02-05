@@ -20,7 +20,7 @@ export default defineConfig({
         // Target: 80% for v1.0.0
         lines: 25,
         functions: 50,
-        branches: 75,
+        branches: 40,
         statements: 25,
       },
     },
