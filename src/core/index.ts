@@ -9,6 +9,15 @@ export { IncidentReportManager } from './incident-report'
 export { callLLM, validateAPIKeys, getProviderFromModel } from './llm-clients'
 export type { LLMProvider, LLMRequest, LLMResponse } from './llm-clients'
 
+// Output parsing
+export {
+  parseOutputs,
+  validateOutputs,
+  formatOutputs,
+  formatOutputInstruction,
+} from './output-parser'
+export type { ParsedOutput } from './output-parser'
+
 // Type exports
 export type {
   // Agent types

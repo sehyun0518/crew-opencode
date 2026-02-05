@@ -10,6 +10,7 @@ import type {
 import type { ContextManager } from './context-manager'
 import { callLLM, type LLMRequest } from './llm-clients'
 import { loadAgentDefinition } from '../agents'
+import { parseOutputs, validateOutputs, formatOutputInstruction } from './output-parser'
 
 /**
  * AgentRunner - Executes individual agent tasks
@@ -204,14 +205,11 @@ export class AgentRunner {
     }
 
     lines.push(``)
-    lines.push(`## Expected Outputs`)
-    for (const output of task.expectedOutputs) {
-      lines.push(`- ${output}`)
-    }
-
-    lines.push(``)
     lines.push(`## Context`)
     lines.push(contextSummary)
+
+    lines.push(``)
+    lines.push(formatOutputInstruction(task.expectedOutputs))
 
     return lines.join('\n')
   }
@@ -271,20 +269,23 @@ export class AgentRunner {
    * Extract outputs from agent response
    */
   private extractOutputs(
-    _response: string,
+    response: string,
     expectedOutputs: ReadonlyArray<string>
   ): Record<string, unknown> {
-    const outputs: Record<string, unknown> = {}
+    // Parse structured outputs from response
+    const parsedOutputs = parseOutputs(response, expectedOutputs)
 
-    // TODO: Implement structured output parsing
-    // This would parse the agent's response and extract the expected outputs
-    // For now, just store the raw response
+    // Validate that we got all expected outputs
+    const validation = validateOutputs(parsedOutputs, expectedOutputs)
 
-    for (const outputKey of expectedOutputs) {
-      outputs[outputKey] = _response
+    if (!validation.valid) {
+      console.warn(
+        `Warning: Missing expected outputs: ${validation.missing.join(', ')}\n` +
+          `Got: ${validation.present.join(', ')}`
+      )
     }
 
-    return outputs
+    return parsedOutputs
   }
 
   /**
