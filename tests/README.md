@@ -20,11 +20,31 @@ bun test tests/core/task-queue.test.ts
 
 ## Coverage Goals
 
-- **Minimum**: 80% overall coverage
+### Current (v0.1.0)
+- **Lines**: ≥ 25%
+- **Functions**: ≥ 50%
+- **Branches**: ≥ 75%
+- **Statements**: ≥ 25%
+
+### Target (v1.0.0)
 - **Lines**: ≥ 80%
 - **Functions**: ≥ 80%
 - **Branches**: ≥ 75%
 - **Statements**: ≥ 80%
+
+### Well-Tested Modules (70-100% coverage)
+- `task-queue.ts` - 77.91%
+- `context-manager.ts` - 77.04%
+- `config/` - 70.58%
+- `sop/` - 67.88%
+
+### Needs More Tests
+- CLI commands (`cli/commands/`)
+- Orchestrator (`core/orchestrator.ts`)
+- Incident reporting (`core/incident-report.ts`)
+- Agent runner (`core/agent-runner.ts`)
+- Hooks (`hooks/`)
+- Tools (`tools/`)
 
 ## Test Structure
 
