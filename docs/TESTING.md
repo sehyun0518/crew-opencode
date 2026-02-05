@@ -5,25 +5,34 @@
 ### Fast Tests (Default - Recommended)
 ```bash
 # Run fast tests (excludes slow integration tests)
-bun test                    # ~400ms
+bun run test               # ~300ms
 bun run test:fast          # Same as above
 
 # Watch mode for development
 bun run test:watch         # Excludes slow tests
 ```
 
-**What's excluded**: Config loader tests with memfs mocking (~30s)
+**Important**: Use `bun run test` (NOT `bun test`) to ensure package.json scripts are executed.
+- `bun test` = Bun's built-in test runner (finds ALL test files)
+- `bun run test` = Runs package.json script (vitest with exclusions)
 
-### Full Test Suite (When Needed)
+**What's excluded**: All tests in `tests/slow/` directory (~30-60s)
+- Config tests with memfs mocking
+- Integration tests with heavy I/O
+
+### Slow Tests (Separate Directory)
 ```bash
-# Run ALL tests including slow ones
-bun run test:full          # ~30-60s
+# Run only slow tests
+bun run test:slow          # ~30-60s (50 tests in tests/slow/)
+
+# Run ALL tests (fast + slow)
+bun run test:full          # ~30-60s (150 tests total)
 
 # Full coverage report
 bun run test:coverage:full # ~30-60s + coverage
 ```
 
-**When to use**: Before committing, pre-release, CI/CD
+**When to use**: Before releasing, testing config changes, full validation
 
 ### Coverage Reports
 ```bash
@@ -38,20 +47,27 @@ bun run test:coverage:full # ~30-60s
 
 ## 📊 Test Breakdown
 
-| Test Suite | Tests | Speed | Included in Fast |
-|------------|-------|-------|------------------|
-| `core/task-queue.test.ts` | 24 | Fast | ✅ Yes |
-| `core/output-parser.test.ts` | 27 | Fast | ✅ Yes |
-| `core/context-manager.test.ts` | 13 | Fast | ✅ Yes |
-| `core/orchestrator.test.ts` | 18 | Fast | ✅ Yes |
-| `core/llm-clients.test.ts` | 7 | Fast | ✅ Yes |
-| `config/schema.test.ts` | 5 | Fast | ✅ Yes |
-| `config/index.test.ts` | 9 | Fast | ✅ Yes |
-| `sop/index.test.ts` | 11 | Fast | ✅ Yes |
-| **`config/loader.test.ts`** | **36** | **Slow** | ❌ **No** |
+### Fast Tests (tests/core + tests/sop)
+| Test Suite | Tests | Speed |
+|------------|-------|-------|
+| `core/task-queue.test.ts` | 24 | ~5ms |
+| `core/output-parser.test.ts` | 27 | ~10ms |
+| `core/context-manager.test.ts` | 13 | ~5ms |
+| `core/orchestrator.test.ts` | 18 | ~20ms |
+| `core/llm-clients.test.ts` | 7 | ~3ms |
+| `sop/index.test.ts` | 11 | ~3ms |
 
-**Fast tests**: 114 tests in ~400ms
-**Full tests**: 150 tests in ~30-60s
+**Total**: 100 tests in ~300ms
+
+### Slow Tests (tests/slow/)
+| Test Suite | Tests | Speed |
+|------------|-------|-------|
+| `slow/loader.test.ts` | 36 | ~30s |
+| `slow/index.test.ts` | 9 | ~1s |
+| `slow/schema.test.ts` | 5 | ~1s |
+
+**Total**: 50 tests in ~30-60s
+**Full suite**: 150 tests total
 
 ---
 
@@ -60,7 +76,7 @@ bun run test:coverage:full # ~30-60s
 ### During Development
 ```bash
 # Quick validation (fast!)
-bun test
+bun run test
 
 # Watch mode for TDD
 bun run test:watch
@@ -72,7 +88,7 @@ bun run test:watch
 bun run typecheck
 
 # Fast tests
-bun test
+bun run test
 
 # Optional: Full test suite
 bun run test:full
@@ -129,16 +145,16 @@ The `config/loader.test.ts` file uses **memfs** to mock the file system:
 ### Tests Hanging
 ```bash
 # Use fast tests instead
-bun test              # Not: bun run test:full
+bun run test              # Not: bun run test:full
 ```
 
 ### Need Specific Test
 ```bash
 # Run single file
-bun test tests/core/output-parser.test.ts
+bun run test tests/core/output-parser.test.ts
 
 # Run pattern
-bun test tests/core/*.test.ts
+bun run test tests/core/*.test.ts
 ```
 
 ### Coverage Not Updating
@@ -163,7 +179,7 @@ Edit `package.json`:
 ## 🎨 Best Practices
 
 ### ✅ Do
-- Use `bun test` for rapid iteration
+- Use `bun run test` for rapid iteration
 - Run `test:full` before committing
 - Write fast unit tests when possible
 - Use mocks to avoid slow I/O
@@ -228,7 +244,7 @@ jobs:
 
       # Fast tests for quick feedback
       - name: Fast Tests
-        run: bun test
+        run: bun run test
 
       # Full tests for final validation
       - name: Full Test Suite
@@ -245,7 +261,7 @@ jobs:
 
 | Command | Time | Use Case |
 |---------|------|----------|
-| `bun test` | ~400ms | ⚡ Development |
+| `bun run test` | ~400ms | ⚡ Development |
 | `bun run test:watch` | ~400ms | 🔄 TDD |
 | `bun run test:coverage` | ~1-2s | 📊 Quick coverage |
 | `bun run test:full` | ~30-60s | ✅ Pre-commit |
@@ -253,4 +269,4 @@ jobs:
 
 ---
 
-**Recommendation**: Use `bun test` (fast) 99% of the time. Use `bun run test:full` before commits/releases.
+**Recommendation**: Use `bun run test` (fast) 99% of the time. Use `bun run test:full` before commits/releases.
