@@ -11,6 +11,7 @@ import type { ContextManager } from './context-manager'
 import { callLLM, type LLMRequest } from './llm-clients'
 import { loadAgentDefinition } from '../agents'
 import { parseOutputs, validateOutputs, formatOutputInstruction } from './output-parser'
+import { extractArtifacts, summarizeArtifacts } from './artifact-extractor'
 
 /**
  * AgentRunner - Executes individual agent tasks
@@ -291,11 +292,13 @@ export class AgentRunner {
   /**
    * Extract artifacts from agent response
    */
-  private extractArtifacts(_response: string): Artifact[] {
-    const artifacts: Artifact[] = []
+  private extractArtifacts(response: string): Artifact[] {
+    const artifacts = extractArtifacts(response)
 
-    // TODO: Implement artifact extraction
-    // This would parse code blocks, file references, etc. from the agent's response
+    // Log artifact summary if any were found
+    if (artifacts.length > 0) {
+      console.log(`  ${summarizeArtifacts(artifacts)}`)
+    }
 
     return artifacts
   }

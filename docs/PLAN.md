@@ -311,10 +311,12 @@ If any agent fails:
    - Output validation with Zod
    - Error handling for malformed outputs
 
-3. ✅ Artifact Extraction (agent-runner.ts:276)
-   - Code block parser
-   - File reference parser
-   - Artifact storage in context
+3. ✅ Artifact Extraction (agent-runner.ts:276) - COMPLETED
+   - ✅ Code block parser (extracts ```language\ncode```)
+   - ✅ File reference parser (file://, @file:, markdown links)
+   - ✅ Inline file parser (<file path="...">content</file>)
+   - ✅ Artifact storage in context manager
+   - ✅ Comprehensive test coverage (29 tests)
 
 **Deliverables**:
 - Working end-to-end workflow with real LLM calls
@@ -514,36 +516,24 @@ If any agent fails:
 // Return partial results if some outputs missing
 ```
 
-#### 3. Agent Runner - Artifact Extraction (src/core/agent-runner.ts:276)
-**Location**: `src/core/agent-runner.ts:276`
-**Priority**: 🟡 HIGH
-**Description**: Implement artifact extraction from agent responses
+#### 3. ✅ Agent Runner - Artifact Extraction (src/core/agent-runner.ts:276) - COMPLETED
+**Location**: `src/core/artifact-extractor.ts` (new file)
+**Priority**: ~~🟡 HIGH~~ ✅ COMPLETED
+**Description**: ✅ Artifact extraction from agent responses implemented
 **Details**:
-- Extract code blocks from agent responses
-- Parse file references and paths
-- Store artifacts for handoff between agents
-- Support multiple artifact types (code, docs, diagrams)
+- ✅ Extract code blocks from agent responses (```language\ncode```)
+- ✅ Parse file references (file://, @file:, markdown links)
+- ✅ Extract inline files (<file path="...">content</file>)
+- ✅ Store artifacts for handoff between agents via context manager
+- ✅ Support multiple artifact types (code, file, document, test, report)
+- ✅ Deduplication and filtering utilities
+- ✅ Comprehensive test coverage (29 tests, 100% coverage)
 
-**Implementation Steps**:
-```typescript
-// 1. Define artifact schema
-interface Artifact {
-  type: 'code' | 'file' | 'diagram' | 'document'
-  name: string
-  content: string
-  language?: string
-  path?: string
-}
-
-// 2. Implement code block parser
-// Extract ```language\ncode``` blocks
-
-// 3. Implement file reference parser
-// Extract file://, @file, or [file](path) references
-
-// 4. Store in context manager
-// Make available to subsequent agents
-```
+**Implementation Complete**:
+- `src/core/artifact-extractor.ts`: Main extraction logic
+- `tests/core/artifact-extractor.test.ts`: Full test suite
+- `src/core/agent-runner.ts`: Integrated with agent execution
+- Artifacts automatically stored in context manager
 
 #### 4. Crew Tools - Workflow Tracking (src/tools/crew-tools.ts:66)
 **Location**: `src/tools/crew-tools.ts:66`
