@@ -69,7 +69,7 @@ export function extractFileReferences(text: string): Artifact[] {
   let match: RegExpExecArray | null
   while ((match = fileProtocolRegex.exec(text)) !== null) {
     const path = match[1]
-    if (!seenPaths.has(path)) {
+    if (path && !seenPaths.has(path)) {
       seenPaths.add(path)
       artifacts.push({
         type: 'file',
@@ -83,7 +83,7 @@ export function extractFileReferences(text: string): Artifact[] {
   const atFileRegex = /@file:([^\s]+)/g
   while ((match = atFileRegex.exec(text)) !== null) {
     const path = match[1]
-    if (!seenPaths.has(path)) {
+    if (path && !seenPaths.has(path)) {
       seenPaths.add(path)
       artifacts.push({
         type: 'file',
@@ -99,6 +99,11 @@ export function extractFileReferences(text: string): Artifact[] {
   while ((match = markdownLinkRegex.exec(text)) !== null) {
     const name = match[1]
     const path = match[2]
+
+    // Skip if name or path is undefined
+    if (!name || !path) {
+      continue
+    }
 
     // Skip HTTP/HTTPS URLs
     if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -130,9 +135,9 @@ export function extractInlineFiles(text: string): Artifact[] {
   let match: RegExpExecArray | null
   while ((match = inlineFileRegex.exec(text)) !== null) {
     const path = match[1]
-    const content = match[2].trim()
+    const content = match[2]?.trim()
 
-    if (content) {
+    if (path && content) {
       artifacts.push({
         type: 'file',
         name: extractFilename(path),
