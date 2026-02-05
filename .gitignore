@@ -34,3 +34,4 @@ bun.lockb
 *.test.ts.snap
 bin/
 .*.bun-build
+.npmrc
