@@ -16,6 +16,7 @@ import { ContextManager } from './context-manager'
 import { TaskQueue } from './task-queue'
 import { AgentRunner } from './agent-runner'
 import { IncidentReportManager } from './incident-report'
+import { WorkflowStorage } from './workflow-storage'
 
 /**
  * Orchestrator - PM coordinator for multi-agent workflows
@@ -34,6 +35,7 @@ export class Orchestrator {
   private taskQueue: TaskQueue
   private agentRunner: AgentRunner
   private incidentReportManager: IncidentReportManager
+  private workflowStorage: WorkflowStorage
   private eventHandlers: OrchestratorEventHandler[] = []
   private workflowState?: WorkflowState
   private projectPath: string
@@ -48,6 +50,7 @@ export class Orchestrator {
       config.incidentReport,
       projectPath
     )
+    this.workflowStorage = new WorkflowStorage(projectPath)
   }
 
   /**
@@ -98,6 +101,9 @@ export class Orchestrator {
         startedAt: new Date(),
       }
 
+      // Save initial workflow state
+      await this.workflowStorage.save(this.workflowState)
+
       // Step 4: Add tasks to queue
       this.taskQueue.addTasks(plan.tasks)
 
@@ -106,6 +112,9 @@ export class Orchestrator {
 
       // Step 6: Finalize workflow
       const finalState = this.finalizeWorkflow()
+
+      // Save final workflow state
+      await this.workflowStorage.save(finalState)
 
       // Emit workflow complete event
       this.emit({
@@ -126,6 +135,9 @@ export class Orchestrator {
           error: agentError,
           completedAt: new Date(),
         }
+
+        // Save failed workflow state
+        await this.workflowStorage.save(this.workflowState)
       }
 
       // Emit workflow fail event
@@ -210,6 +222,9 @@ export class Orchestrator {
       if (result.success) {
         // Mark task as completed
         this.taskQueue.updateTaskStatus(task.id, 'completed')
+
+        // Update workflow state
+        await this.updateWorkflowState()
 
         // Emit task complete event
         this.emit({
@@ -368,6 +383,28 @@ export class Orchestrator {
     }
 
     return finalState
+  }
+
+  /**
+   * Update and save workflow state
+   */
+  private async updateWorkflowState(): Promise<void> {
+    if (!this.workflowState) {
+      return
+    }
+
+    // Update current step based on completed tasks
+    const completedCount = this.taskQueue.getCompletedTasks().length
+
+    this.workflowState = {
+      ...this.workflowState,
+      currentStep: completedCount,
+      tasks: this.taskQueue.getAllTasks(),
+      context: this.contextManager.getContext(),
+    }
+
+    // Save updated state
+    await this.workflowStorage.save(this.workflowState)
   }
 
   /**

@@ -57,18 +57,51 @@ export async function crewOrchestrate(params: {
  *
  * Get the status of a running crew workflow.
  */
-export async function crewStatus(_params: { workflowId: string }): Promise<{
+export async function crewStatus(params: {
+  workflowId: string
+  projectPath?: string
+}): Promise<{
   success: boolean
   status?: string
   progress?: number
+  currentStep?: number
+  totalSteps?: number
+  startedAt?: string
+  completedAt?: string
   error?: string
 }> {
-  // TODO: Implement workflow tracking/persistence
-  // For now, return a placeholder
+  try {
+    const { WorkflowStorage } = await import('../core/workflow-storage')
+    const projectPath = params.projectPath || process.cwd()
+    const storage = new WorkflowStorage(projectPath)
 
-  return {
-    success: false,
-    error: 'Workflow tracking not yet implemented',
+    // Load workflow state
+    const workflow = await storage.load(params.workflowId)
+
+    if (!workflow) {
+      return {
+        success: false,
+        error: `Workflow not found: ${params.workflowId}`,
+      }
+    }
+
+    // Calculate progress
+    const progress = workflow.totalSteps > 0 ? (workflow.currentStep / workflow.totalSteps) * 100 : 0
+
+    return {
+      success: true,
+      status: workflow.status,
+      progress: Math.round(progress),
+      currentStep: workflow.currentStep,
+      totalSteps: workflow.totalSteps,
+      startedAt: workflow.startedAt.toISOString(),
+      completedAt: workflow.completedAt?.toISOString(),
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    }
   }
 }
 

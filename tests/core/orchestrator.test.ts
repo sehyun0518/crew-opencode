@@ -30,6 +30,18 @@ vi.mock('../../src/core/task-queue', () => ({
   },
 }))
 
+vi.mock('../../src/core/workflow-storage', () => ({
+  WorkflowStorage: class {
+    save = vi.fn().mockResolvedValue(undefined)
+    load = vi.fn().mockResolvedValue(null)
+    list = vi.fn().mockResolvedValue([])
+    delete = vi.fn().mockResolvedValue(true)
+    cleanup = vi.fn().mockResolvedValue(0)
+    exists = vi.fn().mockResolvedValue(false)
+    getSummary = vi.fn().mockResolvedValue(null)
+  },
+}))
+
 vi.mock('../../src/core/agent-runner', () => ({
   AgentRunner: class {
     executeWithRetry = vi.fn().mockResolvedValue({
