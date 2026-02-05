@@ -61,6 +61,9 @@
   "devDependencies": {
     "@types/bun": "^1.1.14",
     "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   }
