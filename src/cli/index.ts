@@ -9,7 +9,7 @@ import { listCommand } from './commands/list'
 import { doctorCommand } from './commands/doctor'
 import { reportsCommand } from './commands/reports'
 
-const VERSION = '0.1.0'
+const VERSION = '1.0.0'
 
 const program = new Command()
 

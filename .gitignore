@@ -32,3 +32,5 @@ bun.lockb
 
 # Test
 *.test.ts.snap
+bin/
+.*.bun-build

@@ -1,6 +1,6 @@
 {
   "name": "@sehyun0518/crew-opencode",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Multi-agent orchestration plugin for OpenCode. Coordinate specialized AI agents working together like a development team.",
   "type": "module",
   "publishConfig": {

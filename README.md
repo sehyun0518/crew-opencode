@@ -91,25 +91,63 @@ Five specialized agents working together:
 ## 📦 Installation
 
 ### Prerequisites
-- [Bun](https://bun.sh/) >= 1.0 or [Node.js](https://nodejs.org/) >= 18.0
+- [Bun](https://bun.sh/) >= 1.0 or [Node.js](https://nodejs.org/) >= 18.0 (for npm installation)
 - [OpenCode](https://opencode.ai/) (optional, for plugin integration)
+- API keys for LLM providers (Anthropic, OpenAI, Google)
 
-### Install via npm
+### Option 1: Install via GitHub Packages (Recommended for npm users)
 
 ```bash
-npm install -g crew-opencode
+# Configure npm to use GitHub Packages
+echo "@sehyun0518:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+# Install globally
+npm install -g @sehyun0518/crew-opencode
 ```
 
-### Install via Bun
+### Option 2: Standalone Binary (No runtime required)
+
+Download the latest binary for your platform from [GitHub Releases](https://github.com/sehyun0518/crew-opencode/releases):
+
+**macOS (ARM64 - M1/M2/M3)**
+```bash
+curl -L https://github.com/sehyun0518/crew-opencode/releases/download/v1.0.0/crew-opencode-macos-arm64 -o crew-opencode
+chmod +x crew-opencode
+sudo mv crew-opencode /usr/local/bin/
+```
+
+**macOS (Intel)**
+```bash
+curl -L https://github.com/sehyun0518/crew-opencode/releases/download/v1.0.0/crew-opencode-macos -o crew-opencode
+chmod +x crew-opencode
+sudo mv crew-opencode /usr/local/bin/
+```
+
+**Linux (x64)**
+```bash
+curl -L https://github.com/sehyun0518/crew-opencode/releases/download/v1.0.0/crew-opencode-linux-x64 -o crew-opencode
+chmod +x crew-opencode
+sudo mv crew-opencode /usr/local/bin/
+```
+
+**Windows (x64)**
+```powershell
+# Download from: https://github.com/sehyun0518/crew-opencode/releases/download/v1.0.0/crew-opencode-windows-x64.exe
+# Add to PATH or run directly
+```
+
+### Option 3: Install via Bun
 
 ```bash
-bun install -g crew-opencode
+bunx @sehyun0518/crew-opencode install
 ```
 
 ### Install as OpenCode Plugin
 
+After installation, register with OpenCode:
+
 ```bash
-# Install globally
+# Install globally to ~/.opencode/
 crew-opencode install --global
 
 # Or install locally in current project

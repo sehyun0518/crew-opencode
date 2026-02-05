@@ -7,8 +7,6 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      // Exclude slow integration tests
-      '**/tests/slow/**',
     ],
     coverage: {
       provider: 'v8',
@@ -22,12 +20,13 @@ export default defineConfig({
         'src/cli/index.ts',
       ],
       thresholds: {
-        // TODO: Increase thresholds as test coverage improves
-        // Target: 80% for v1.0.0
-        lines: 25,
-        functions: 50,
-        branches: 40,
-        statements: 25,
+        // Current coverage: 79.28% (with all tests including slow)
+        // Fast tests only: ~65%
+        // Target: 80% for v1.0.0 (achieved with full test suite)
+        lines: 75,
+        functions: 75,
+        branches: 65,
+        statements: 75,
       },
     },
   },
