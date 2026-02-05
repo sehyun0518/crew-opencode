@@ -1,8 +1,11 @@
 {
-  "name": "crew-opencode",
+  "name": "@sehyun0518/crew-opencode",
   "version": "0.1.0",
   "description": "Multi-agent orchestration plugin for OpenCode. Coordinate specialized AI agents working together like a development team.",
   "type": "module",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "main": "dist/cli/index.js",
   "bin": {
     "crew-opencode": "dist/cli/index.js",
